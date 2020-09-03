@@ -1,0 +1,30 @@
+version: '3'
+services:
+ gitlab-web:
+   image: gitlab/gitlab-ce
+   container_name: gitlab
+   hostname: gitlab.lenex.com.ua
+   restart: always
+   environment:
+     GITLAB_OMNIBUS_CONFIG: |
+       external_url 'https://gitlab.lenex.com.ua'
+       gitlab_rails['gitlab_shell_ssh_port'] = 22
+       nginx['redirect_http_to_https'] = true
+       nginx['ssl_certificate'] = '/etc/gitlab/ssl/gitlab.crt'
+       nginx['ssl_certificate_key'] = '/etc/gitlab/ssl/gitlab.key'
+
+   ports:
+     - '80:80'
+     - '443:443'
+     - '22:22'
+   volumes:
+     - '/srv/gitlab/config:/etc/gitlab'
+     - '/srv/gitlab/logs:/var/log/gitlab'
+     - '/srv/gitlab/data:/var/opt/gitlab'
+     #- '/etc/letsencrypt/live/gitlab.lenex.com.ua:/etc/letsencrypt/live/gitlab.lenex.com.ua'
+ gitlab-runner:
+   image: gitlab/gitlab-runner:latest
+   container_name: gitlab-runner-1
+   volumes:
+     - '/srv/gitlab-runner/config:/etc/gitlab-runner'
+     - '/var/run/docker.sock:/var/run/docker.sock'
